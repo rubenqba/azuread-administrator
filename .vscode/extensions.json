@@ -1,0 +1,22 @@
+{
+  "recommendations": [
+    "streetsidesoftware.code-spell-checker",
+    "editorconfig.editorconfig",
+    "rodrigovallades.es7-react-js-snippets",
+    "PulkitGangwar.nextjs-snippets",
+    "tyriar.sort-lines",
+    "m4ns0ur.base64",
+    "eamodio.gitlens",
+    "yzhang.markdown-all-in-one",
+    "shd101wyy.markdown-preview-enhanced",
+    "DavidAnson.vscode-markdownlint",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "redhat.vscode-yaml",
+    "leodevbro.blockman",
+    "mikestead.dotenv",
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+    "bradlc.vscode-tailwindcss"
+  ]
+}
