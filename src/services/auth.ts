@@ -6,27 +6,29 @@ import type {
 } from "next";
 import type { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
-import AzureAD, { AzureADProfile } from "next-auth/providers/azure-ad";
+import AzureADB2C, { AzureB2CProfile } from "next-auth/providers/azure-ad-b2c";
 import { OAuthUserConfig } from "next-auth/providers/oauth";
 
-type AzureADOptions = OAuthUserConfig<AzureADProfile> & {
-  /**
-   * https://docs.microsoft.com/en-us/graph/api/profilephoto-get?view=graph-rest-1.0#examples
-   * @default 48
-   */
-  profilePhotoSize?: 48 | 64 | 96 | 120 | 240 | 360 | 432 | 504 | 648;
-  /** @default "common" */
+type AzureADOptions = OAuthUserConfig<AzureB2CProfile> & {
+  primaryUserFlow?: string;
   tenantId?: string;
 };
 
 const azureOpts: AzureADOptions = {
+  name: "DARDEUS Administrator",
+  tenantId: process.env.AZURE_TENANT_NAME!,
   clientId: process.env.AZURE_CLIENT_ID!,
   clientSecret: process.env.AZURE_CLIENT_SECRET!,
-  tenantId: process.env.AZURE_TENANT_ID!,
+  primaryUserFlow: process.env.AZURE_USER_FLOW_NAME!,
+  authorization: {
+    params: {
+      scope: `openid https://${process.env.AZURE_TENANT_NAME}.onmicrosoft.com/${process.env.AZURE_AUDIENCE}/Admin`,
+    },
+  },
 };
 
 export const config = {
-  providers: [AzureAD(azureOpts)],
+  providers: [AzureADB2C(azureOpts)],
   theme: {
     logo: "https://ddassets.dardeus.io/logos/dardeus/logo-dardeus-black.jpg",
     brandColor: "#14213D",
