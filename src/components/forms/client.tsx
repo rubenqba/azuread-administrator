@@ -1,3 +1,5 @@
+"use client";
+
 import { faPerson, faEnvelope, faPeopleGroup } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Team } from "@model/teams";

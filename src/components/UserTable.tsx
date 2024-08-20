@@ -117,7 +117,7 @@ const UserTable = ({ users, headerTitle }: Readonly<UserTableProps>) => {
           )}
         </TableBody>
       </Table>
-      <ClientEditModal isOpen={isOpen} onChange={onOpenChange} client={toEdit} />
+      {/* <ClientEditModal isOpen={isOpen} onChange={onOpenChange} client={toEdit} /> */}
     </section>
   );
 };

@@ -6,6 +6,7 @@ import AzureADB2C, { AzureB2CProfile } from "next-auth/providers/azure-ad-b2c";
 import { OAuthUserConfig } from "next-auth/providers/oauth";
 import { PartnerInfo } from "../types/next-auth";
 import environment, { Config } from "@lib/environment";
+import { refreshAccessToken } from "@lib/auth";
 
 function buildAzureADB2CConfig(config: Config) {
   const opts: OAuthUserConfig<AzureB2CProfile> & {
@@ -43,7 +44,7 @@ function buildAzureADB2CConfig(config: Config) {
     },
     authorization: {
       params: {
-        scope: `${config.AZURE_AD_B2C_AUDIENCE}/Admin openid`,
+        scope: `${config.AZURE_AD_B2C_AUDIENCE}/Admin openid offline_access`,
       },
     }
   };
@@ -60,15 +61,21 @@ export const config: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, account, profile, session, trigger }) {
-      if (account?.access_token) {
-        token.accessToken = account?.access_token;
-        token.idToken = account?.id_token;
+      if (account) {
+        token.accessToken = account.access_token;
+        // token.idToken = account.id_token;
+        token.refreshToken = account.refresh_token;
+        token.expires = (account?.expires_at ?? 0) * 1000;
       }
       if (profile) {
         token.user = user;
       }
 
-      return token;
+      if (token.expires > 0 && Date.now() < token.expires) {
+        return token;
+      }
+
+      return refreshAccessToken(token, environment);
     },
     async session({ session, token, user }) {
       if (token.accessToken) {

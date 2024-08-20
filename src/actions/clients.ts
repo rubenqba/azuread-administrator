@@ -11,13 +11,13 @@ export async function updateClient(data: FormData) {
     lastName: data.get("lastName")?.toString(),
     email: data.get("email")?.toString(),
     team: data.get("teamId")?.toString(),
-    role: data.get("isPrivileged") ? ["Buyer", "Staff"] : ["Buyer"],
+    roles: data.get("isPrivileged") ? ["Buyer", "Staff"] : ["Buyer"],
   };
 
   console.log("action data:", client);
 
   try {
-    const { id, firstName, lastName, email, team, role } = clientValidator.parse(data);
+    const { id, firstName, lastName, email, team, roles } = clientValidator.parse(data);
 
     return {
       status: "success",
