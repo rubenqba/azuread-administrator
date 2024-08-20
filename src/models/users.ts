@@ -13,7 +13,7 @@ export type Client = {
   email: string;
   team?: string;
   avatar?: string;
-  role?: string[];
+  roles?: string[];
 };
 
 export const clientValidator = z.object({
@@ -23,5 +23,5 @@ export const clientValidator = z.object({
   email: z.string().email(),
   team: z.string().optional(),
   avatar: z.string().optional(),
-  role: z.array(z.string()).optional(),
+  roles: z.array(z.string()).optional(),
 });

@@ -3,7 +3,7 @@ import React from "react";
 
 function LoginButton() {
   return (
-    <button onClick={() => signIn()} className="text-white">
+    <button onClick={() => signIn("azure-ad-b2c", {}, { prompt: "login" })} className="text-white">
       Login
     </button>
   );

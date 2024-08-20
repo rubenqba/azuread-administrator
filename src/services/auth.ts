@@ -45,21 +45,46 @@ function buildAzureADB2CConfig(config: Config) {
       params: {
         scope: `${config.AZURE_AD_B2C_AUDIENCE}/Admin openid`,
       },
-    },
+    }
   };
   return opts;
 }
 const azureOpts = buildAzureADB2CConfig(environment);
 
-export const config = {
+export const config: NextAuthOptions = {
   providers: [AzureADB2C(azureOpts)],
   theme: {
     logo: "https://ddassets.dardeus.io/logos/dardeus/logo-dardeus-black.jpg",
     brandColor: "#14213D",
     colorScheme: "auto",
   },
+  callbacks: {
+    async jwt({ token, user, account, profile, session, trigger }) {
+      if (account?.access_token) {
+        token.accessToken = account?.access_token;
+        token.idToken = account?.id_token;
+      }
+      if (profile) {
+        token.user = user;
+      }
+
+      return token;
+    },
+    async session({ session, token, user }) {
+      if (token.accessToken) {
+        session.accessToken = token.accessToken;
+      }
+      // if (token.idToken) {
+      //   session.idToken = token.idToken;
+      // }
+      if (token.user) {
+        session.user = token.user;
+      }
+      return session;
+    },
+  },
   debug: true,
-} satisfies NextAuthOptions;
+};
 
 // Use it in server contexts
 export function auth(

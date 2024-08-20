@@ -12,6 +12,9 @@ const Navbar: React.FC = () => {
           <Link href="/me" className="text-white">
             Me
           </Link>
+          <Link href="/teams" className="text-white">
+            Teams
+          </Link>
           <Link href="/users" className="text-white">
             Users
           </Link>
