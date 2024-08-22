@@ -1,43 +1,51 @@
+"use server";
+
 import { Client, clientValidator } from "@model/users";
 import { ZodError } from "zod";
+import { auth } from "@service/auth";
+import ClientService from "@service/clients";
+import { FormStatus } from "@model/forms";
+import { revalidatePath } from "next/cache";
 
-export async function updateClient(data: FormData) {
+export async function getClients() {
+  const session = await auth();
+  const service = new ClientService(session?.accessToken);
+
+  return service.getAll();
+}
+
+export async function updateClient(prevState: FormStatus | null, data: FormData): Promise<FormStatus> {
   // we're gonna put a delay in here to simulate some kind of data processing like persisting data
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  // await new Promise((resolve) => setTimeout(resolve, 1000));
 
+  console.debug(data);
+  const form = Object.fromEntries(data.entries());
   const client: Partial<Client> = {
     id: data.get("id")?.toString(),
     firstName: data.get("firstName")?.toString(),
     lastName: data.get("lastName")?.toString(),
     email: data.get("email")?.toString(),
-    team: data.get("teamId")?.toString(),
+    team: data.get("team")?.toString(),
     roles: data.get("isPrivileged") ? ["Buyer", "Staff"] : ["Buyer"],
   };
 
-  console.log("action data:", client);
+  console.log("action data:", form);
+  const body = clientValidator.safeParse(form);
 
-  try {
-    const { id, firstName, lastName, email, team, roles } = clientValidator.parse(data);
-
-    return {
-      status: "success",
-      message: `Client ${client.firstName} ${client.lastName} was updated`,
-    };
-  } catch (e) {
-    // In case of a ZodError (caused by our validation) we're adding issues to our response
-    if (e instanceof ZodError) {
-      return {
-        status: "error",
-        message: "Invalid form data",
-        errors: e.issues.map((issue) => ({
-          path: issue.path.join("."),
-          message: `Server validation: ${issue.message}`,
-        })),
-      };
-    }
+  if (!body.success) {
     return {
       status: "error",
-      message: "Something went wrong. Please try again.",
+      message: (body.error.cause as string) ?? "Invalid form data",
+      errors: body.error.issues.map((issue) => ({
+        path: issue.path.join("."),
+        message: issue.message,
+      })),
     };
   }
+
+  // revalidatePath("/users");
+  return {
+    status: "success",
+    message: `Client ${body.data.firstName} ${body.data.lastName} was updated`,
+  };
 }

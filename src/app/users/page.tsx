@@ -1,6 +1,6 @@
 // app/users/page.tsx
-import UserTable from "@component/UserTable";
-import { getClients } from "@lib/clients";
+import UserTable from "@component/users/UserTable";
+import { getClients } from "@action/clients";
 
 export default async function UsersPage() {
   const clients = await getClients();

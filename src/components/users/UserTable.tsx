@@ -5,7 +5,7 @@ import React, { Key, useCallback, useState } from "react";
 import { Client, StatusColorMap } from "@model/users";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
-import ClientEditModal from "./ClientEditModal";
+import ClientEditModal from "@component/users/ClientEditModal";
 
 type UserTableProps = {
   headerTitle: string;
@@ -117,7 +117,7 @@ const UserTable = ({ users, headerTitle }: Readonly<UserTableProps>) => {
           )}
         </TableBody>
       </Table>
-      {/* <ClientEditModal isOpen={isOpen} onChange={onOpenChange} client={toEdit} /> */}
+      <ClientEditModal isOpen={isOpen} onChange={onOpenChange} client={toEdit} />
     </section>
   );
 };

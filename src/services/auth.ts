@@ -1,12 +1,13 @@
-
 import type { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from "next";
-import type { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions, Session } from "next-auth";
 import { getServerSession } from "next-auth";
 import AzureADB2C, { AzureB2CProfile } from "next-auth/providers/azure-ad-b2c";
 import { OAuthUserConfig } from "next-auth/providers/oauth";
 import { PartnerInfo } from "../types/next-auth";
 import environment, { Config } from "@lib/environment";
 import { refreshAccessToken } from "@lib/auth";
+import { JWT } from "next-auth/jwt";
+import { RouteKind } from "next/dist/server/future/route-kind";
 
 function buildAzureADB2CConfig(config: Config) {
   const opts: OAuthUserConfig<AzureB2CProfile> & {
@@ -30,11 +31,7 @@ function buildAzureADB2CConfig(config: Config) {
 
       return {
         id: profile.oid ?? profile.sub,
-        displayName:
-          profile.name ??
-          [profile.given_name, profile.family_name]
-            .filter((t) => t && t.length > 0)
-            .join(" "),
+        displayName: profile.name ?? [profile.given_name, profile.family_name].filter((t) => t && t.length > 0).join(" "),
         givenName: profile.given_name,
         familyName: profile.family_name,
         country: profile.country,
@@ -46,7 +43,7 @@ function buildAzureADB2CConfig(config: Config) {
       params: {
         scope: `${config.AZURE_AD_B2C_AUDIENCE}/Admin openid offline_access`,
       },
-    }
+    },
   };
   return opts;
 }
@@ -61,31 +58,28 @@ export const config: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, account, profile, session, trigger }) {
-      if (account) {
-        token.accessToken = account.access_token;
-        // token.idToken = account.id_token;
-        token.refreshToken = account.refresh_token;
-        token.expires = (account?.expires_at ?? 0) * 1000;
-      }
-      if (profile) {
+      if (account && user) {
         token.user = user;
-      }
-
-      if (token.expires > 0 && Date.now() < token.expires) {
+        token.accessToken = account.access_token;
+        token.expires = account.expires_at ?? 0;
+        token.refreshToken = account.refresh_token;
         return token;
       }
 
-      return refreshAccessToken(token, environment);
-    },
-    async session({ session, token, user }) {
-      if (token.accessToken) {
-        session.accessToken = token.accessToken;
+      if (Date.now() < token.expires * 1000) {
+        return token;
       }
-      // if (token.idToken) {
-      //   session.idToken = token.idToken;
-      // }
-      if (token.user) {
-        session.user = token.user;
+
+      return await refreshAccessToken(token, environment);
+    },
+    async session({ session, token }: { session: Session, token: JWT}) {
+      if (token.accessToken && session.accessToken !== token.accessToken) {
+        return {
+          ...session,
+          user: token.user,
+          accessToken: token.accessToken,
+          expires: new Date(token.expires).toISOString(),
+        };
       }
       return session;
     },

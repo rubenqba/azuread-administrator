@@ -1,35 +1,34 @@
-
-import environment from '@lib/environment';
-import { parseWWWAuthenticateHeader } from '@lib/utils';
-import { Team } from '@model/teams';
+import environment from "@lib/environment";
+import { parseWWWAuthenticateHeader } from "@lib/utils";
+import { Team } from "@model/teams";
 
 class TeamService {
-  private accessToken?: string;
+  private accessToken: string;
 
   constructor(token?: string) {
+    if (!token) {
+      throw new Error(`Authentication error: missing token`);
+    }
     this.accessToken = token;
   }
 
   async getAll(): Promise<Team[]> {
-    if (this.accessToken) {
-      const url = `${environment.BACKEND_API_URL}/teams`;
-      // console.debug(this.accessToken);
-      const res = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${this.accessToken}`,
-          Accept: "application/json",
-        },
-      });
-      if (res.ok) {
-        return await res.json();
-      }
-      const error = await parseWWWAuthenticateHeader(res.headers.get("WWW-Authenticate"));
-      console.error(JSON.stringify(error, null, 2));
-      throw new Error(`Authentication error: ${res.statusText}`, {
-        cause: error.error_description,
-      });
+    const url = `${environment.BACKEND_API_URL}/teams`;
+    // console.debug(this.accessToken);
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        Accept: "application/json",
+      },
+    });
+    if (res.ok) {
+      return await res.json();
     }
-    throw new Error(`Authentication error: missing token`);
+    const error = await parseWWWAuthenticateHeader(res.headers.get("WWW-Authenticate"));
+    console.error(JSON.stringify(error, null, 2));
+    throw new Error(`Authentication error: ${res.statusText}`, {
+      cause: error.error_description,
+    });
   }
 
   // getTeamById(id: string): Team | undefined {
