@@ -1,7 +1,8 @@
 import { submitForm } from "@action/forms";
 import CheckboxFormWithAction from "@component/CheckboxFormWithAction";
 import CheckboxFormWithSubmit from "@component/CheckboxFormWithSubmit";
-import { Checkbox, Switch } from "@nextui-org/react";
+import { Switch } from "@nextui-org/react";
+
 
 export default function FormPage() {
   return (
@@ -18,10 +19,13 @@ export default function FormPage() {
         <div>
           <h1 className="text-2xl font-bold">Form native</h1>
           <form action={submitForm}>
-            <input type="hidden" name="id" value={new Date().toISOString()} />
-            <Switch name="switch" >Selecciona para probar</Switch>
-            <Checkbox name="checkbox" >Selecciona para probar</Checkbox>
-            <button type="submit">Submit</button>
+            <div className="mt-5 flex flex-col gap-4">
+              <input type="hidden" name="id" value={new Date().toISOString()} />
+              <Switch name="switch" >Selecciona para probar</Switch>
+              <label htmlFor="native">Selecciona para probar</label>
+              <input name="native" type="checkbox"  />
+              <button type="submit">Submit</button>
+            </div>
           </form>
         </div>
       </div>

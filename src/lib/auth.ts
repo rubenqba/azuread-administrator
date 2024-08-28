@@ -26,10 +26,11 @@ export async function refreshAccessToken(token: JWT, config: Config) {
       throw new Error(`Failed to refresh access token: ${req.statusText}`);
     }
     const data = await req.json();
+    console.debug("Refresh data: ", data);
     return {
       ...token,
       accessToken: data.access_token,
-      expires: Date.now() + data.expires_on,
+      expires: data.expires_on - 1,
       refreshToken: data.refresh_token,
     };
   } catch (error) {

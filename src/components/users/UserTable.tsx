@@ -6,10 +6,14 @@ import { Client, StatusColorMap } from "@model/users";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import ClientEditModal from "@component/users/ClientEditModal";
+import { UserModalProvider, useUserEditModal } from "./ClientEditModalContext";
+import { toast } from "react-toastify";
+import { Team } from "@model/teams";
 
 type UserTableProps = {
   headerTitle: string;
   users: Client[];
+  teams: Team[];
 };
 
 type IndexableClient = Client & {
@@ -23,9 +27,8 @@ const columns = [
   { name: "Actions", uid: "actions" },
 ];
 
-const UserTable = ({ users, headerTitle }: Readonly<UserTableProps>) => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [toEdit, setToEdit] = useState<Client>();
+const UserTableData = ({ teams, users, headerTitle }: Readonly<UserTableProps>) => {
+  const { openModal } = useUserEditModal();
   const renderCell = useCallback((user: IndexableClient, columnKey: string | number) => {
     switch (columnKey) {
       case "name":
@@ -50,19 +53,15 @@ const UserTable = ({ users, headerTitle }: Readonly<UserTableProps>) => {
         );
       case "roles":
         const roles = user.roles ?? [];
-        return <div className="flex gap-1">
-          {roles.map((role) => (
-            <Chip
-              className="capitalize"
-              color={StatusColorMap[role]}
-              size="sm"
-              variant="flat"
-              key={`${user.id}-${role}`}
-            >
-              {role}
-            </Chip>
-          ))}
-        </div>;
+        return (
+          <div className="flex gap-1">
+            {roles.map((role) => (
+              <Chip className="capitalize" color={StatusColorMap[role]} size="sm" variant="flat" key={`${user.id}-${role}`}>
+                {role}
+              </Chip>
+            ))}
+          </div>
+        );
       case "actions":
         return (
           <div className="relative flex justify-end gap-2">
@@ -89,8 +88,11 @@ const UserTable = ({ users, headerTitle }: Readonly<UserTableProps>) => {
   }, []);
 
   const editClient = (key: Key) => {
-    setToEdit(users.find((u) => u.id === key));
-    onOpen();
+    console.log("Edit client", key);
+    const client = users.find((u) => u.id === key);
+    if (client) {
+      openModal(client, () => toast.success(`User ${client.id} was updated`));
+    }
   };
 
   return (
@@ -117,9 +119,15 @@ const UserTable = ({ users, headerTitle }: Readonly<UserTableProps>) => {
           )}
         </TableBody>
       </Table>
-      <ClientEditModal isOpen={isOpen} onChange={onOpenChange} client={toEdit} />
+      <ClientEditModal teams={teams}/>
     </section>
   );
 };
 
-export default UserTable;
+export default function UserTable({ teams, users, headerTitle }: Readonly<UserTableProps>) {
+  return (
+    <UserModalProvider>
+      <UserTableData teams={teams} users={users} headerTitle={headerTitle} />
+    </UserModalProvider>
+  );
+};

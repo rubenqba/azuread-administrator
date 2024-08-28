@@ -3,6 +3,9 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "cSpell.words": [
     "fontawesome",
-    "fortawesome"
+    "fortawesome",
+    "hookform",
+    "nextui",
+    "toastify"
   ]
 }

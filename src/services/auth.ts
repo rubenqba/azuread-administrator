@@ -66,22 +66,22 @@ export const config: NextAuthOptions = {
         return token;
       }
 
+      console.log("JWT expires: ", token.expires);
       if (Date.now() < token.expires * 1000) {
         return token;
       }
 
       return await refreshAccessToken(token, environment);
     },
-    async session({ session, token }: { session: Session, token: JWT}) {
+    async session({ session, token }: { session: Session; token: JWT }) {
+      const newSession = session;
       if (token.accessToken && session.accessToken !== token.accessToken) {
-        return {
-          ...session,
-          user: token.user,
-          accessToken: token.accessToken,
-          expires: new Date(token.expires).toISOString(),
-        };
+        newSession.user = token.user;
+        newSession.accessToken = token.accessToken;
+        newSession.expires = new Date(token.expires * 1000).toISOString();
       }
-      return session;
+      // console.debug(newSession);
+      return newSession;
     },
   },
   debug: true,

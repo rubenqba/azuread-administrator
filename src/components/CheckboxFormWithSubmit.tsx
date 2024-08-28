@@ -1,36 +1,49 @@
 "use client";
-import { Button, Checkbox, Input } from "@nextui-org/react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, Form, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { submitForm } from "@action/forms";
+import { objectToFormData } from "@lib/utils";
+import { Button, Input, Switch } from "@nextui-org/react";
 
-type FormValues = {
-  id: string;
-  selected: string;
-};
+const formSchema = z.object({
+  id: z.string().min(2, {
+    message: "ID must be at least 2 characters.",
+  }),
+  selected: z.boolean().default(false),
+});
 
 export default function CheckboxFormWithSubmit() {
-  const { register, handleSubmit, control } = useForm<FormValues>({defaultValues: {
-    id: new Date().toISOString(),
-    selected: "false"
-  }});
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      id: "1",
+    },
+  });
+  const {
+    formState: { errors },
+  } = form;
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    console.debug(data);
+    await submitForm(objectToFormData(data));
+  };
 
   return (
-    <form onSubmit={handleSubmit((d) => console.debug(d))}>
+    <form onSubmit={form.handleSubmit(onSubmit)}>
       <div className="mt-5 flex flex-col gap-4">
-        <Input id={"id"} type="hidden" hidden={true} {...register("id")} />
+        <Input {...form.register("id")} />
+        <p>{errors.id?.message}</p>
         <Controller
-          control={control}
+          control={form.control}
           name="selected"
-          render={({ field: { onChange, onBlur, value, ref } }) => (
-            <Checkbox
-              ref={ref}
-              onChange={(v) => onChange(`${v.target.checked}`)} // send value to hook form
-              onBlur={onBlur} // notify when input is touched/blur
-              isSelected={value==="true"}
-            >
-              Select to test
-            </Checkbox>
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Switch onChange={onChange} onBlur={onBlur} checked={value}>
+              Privileged user? {`${value}`}
+            </Switch>
           )}
         />
+        <p>{errors.selected?.message}</p>
         <Button type="submit">Submit</Button>
       </div>
     </form>

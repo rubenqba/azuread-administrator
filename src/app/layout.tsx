@@ -7,6 +7,8 @@ config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatic
 import { Providers } from "./providers";
 import Navbar from "@component/NavBar";
 import "../styles/prism.css";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,6 +30,7 @@ export default function RootLayout({
             <Navbar />
           </header>
           <main className="container mx-auto p-4">{children}</main>
+          <ToastContainer />
         </Providers>
       </body>
     </html>

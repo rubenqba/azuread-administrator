@@ -13,6 +13,8 @@
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@hookform/resolvers": "^3.9.0",
+    "@hyper-fetch/core": "^5.7.5",
+    "@hyper-fetch/react": "^5.7.5",
     "@nextui-org/react": "^2.4.6",
     "framer-motion": "^11.3.12",
     "next": "14.2.5",
@@ -23,6 +25,8 @@
     "react-hook-form": "^7.52.1",
     "react-toastify": "^10.0.5",
     "server-only": "^0.0.1",
+    "tailwind-merge": "^2.5.2",
+    "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"
   },
   "devDependencies": {
