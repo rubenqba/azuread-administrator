@@ -16,6 +16,7 @@
     "@hyper-fetch/core": "^5.7.5",
     "@hyper-fetch/react": "^5.7.5",
     "@nextui-org/react": "^2.4.6",
+    "date-fns": "^3.6.0",
     "framer-motion": "^11.3.12",
     "next": "14.2.5",
     "next-auth": "^4.24.7",

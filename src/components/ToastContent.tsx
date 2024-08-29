@@ -17,3 +17,12 @@ export function FormErrorMessage({ error }: { error: FormErrorState }) {
     </div>
   );
 }
+
+export function SimpleMessage({ title, description }: { title: string; description?: string }) {
+  return (
+    <div className="flex flex-col">
+      <h2 className="text-medium font-semibold">{title}</h2>
+      <p className="text-small">{description}</p>
+    </div>
+  );
+}
