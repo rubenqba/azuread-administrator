@@ -41,7 +41,7 @@ const PlanTableData = ({ list, headerTitle }: Readonly<PlanTableProps>) => {
         );
       case "created":
         return <AuditorCell auditorName={plan.createdBy} auditedAt={plan.createdAt} />;
-        case "updated":
+      case "updated":
         return <AuditorCell auditorName={plan.updatedBy} auditedAt={plan.updatedAt} />;
       case "actions":
         return (

@@ -10,19 +10,11 @@ import { wrapObjectIntoFormData } from "@lib/utils";
 import { createPlan, updatePlan } from "@action/plans";
 import { toast } from "react-toastify";
 import { FormErrorMessage } from "@component/ToastContent";
+import FormSubmitButton from "@component/FormSubmitButton";
 
 type PlanUpdateFormProps = {
   plan: Plan | null;
 };
-
-function SubmitButton({ control }: { control: Control<z.infer<typeof PlanEditFormSchema>, any> }) {
-  const { isSubmitting } = useFormState({ control });
-  return (
-    <Button color="primary" aria-disabled={isSubmitting} type="submit" isLoading={isSubmitting}>
-      Save
-    </Button>
-  );
-}
 
 export function PlanUpdateForm({ plan }: Readonly<PlanUpdateFormProps>) {
   const { onSuccess, closeModal } = usePlanModal();
@@ -86,7 +78,7 @@ export function PlanUpdateForm({ plan }: Readonly<PlanUpdateFormProps>) {
         <Button color="danger" onPress={closeModal}>
           Close
         </Button>
-        <SubmitButton control={control} />
+        <FormSubmitButton control={control} />
       </ModalFooter>
     </form>
   );

@@ -1,6 +1,6 @@
 import environment from "@lib/environment";
 import { parseWWWAuthenticateHeader } from "@lib/utils";
-import { Team } from "@model/teams";
+import { CreateTeamDto, Team, UpdateTeamDto } from "@model/teams";
 
 class TeamService {
   private accessToken: string;
@@ -21,45 +21,97 @@ class TeamService {
         Accept: "application/json",
       },
     });
-    if (res.ok) {
-      return await res.json();
+    if (!res.ok) {
+      const error = await parseWWWAuthenticateHeader(res.headers.get("WWW-Authenticate"));
+      console.error(JSON.stringify(error, null, 2));
+      throw new Error(`Authentication error: ${res.statusText}`, {
+        cause: error.error_description,
+      });
     }
-    const error = await parseWWWAuthenticateHeader(res.headers.get("WWW-Authenticate"));
-    console.error(JSON.stringify(error, null, 2));
-    throw new Error(`Authentication error: ${res.statusText}`, {
-      cause: error.error_description,
-    });
+    return await res.json();
   }
 
-  // getTeamById(id: string): Team | undefined {
-  //   return this.teams.find(team => team.id === id);
-  // }
+  async createTeam(dto: CreateTeamDto): Promise<Team> {
+    const url = `${environment.BACKEND_API_URL}/teams`;
+    // console.debug(this.accessToken);
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dto),
+    });
+    if (!res.ok) {
+      const error = await parseWWWAuthenticateHeader(res.headers.get("WWW-Authenticate"));
+      console.error(JSON.stringify(error, null, 2));
+      throw new Error(`Authentication error: ${res.statusText}`, {
+        cause: error.error_description,
+      });
+    }
+    return await res.json();
+  }
 
-  // addTeam(team: Team): void {
-  //   if (this.teams.some(t => t.id === team.id)) {
-  //     throw new Error(`Team with id ${team.id} already exists`);
-  //   }
-  //   this.teams.push(team);
-  // }
+  async updateTeam(id: string, dto: UpdateTeamDto): Promise<Team> {
+    const url = `${environment.BACKEND_API_URL}/teams/${id}`;
+    // console.debug(this.accessToken);
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dto),
+    });
+    if (!res.ok) {
+      const error = await parseWWWAuthenticateHeader(res.headers.get("WWW-Authenticate"));
+      console.error(JSON.stringify(error, null, 2));
+      throw new Error(`Authentication error: ${res.statusText}`, {
+        cause: error.error_description,
+      });
+    }
+    return await res.json();
+  }
 
-  // updateTeam(id: string, updatedTeam: Partial<Team>): Team | undefined {
-  //   const teamIndex = this.teams.findIndex(team => team.id === id);
-  //   if (teamIndex === -1) {
-  //     throw new Error(`Team with id ${id} not found`);
-  //   }
+  async deleteTeam(id: string): Promise<void> {
+    const url = `${environment.BACKEND_API_URL}/teams/${id}`;
+    // console.debug(this.accessToken);
+    const res = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        Accept: "application/json",
+      },
+    });
+    if (!res.ok) {
+      const error = await parseWWWAuthenticateHeader(res.headers.get("WWW-Authenticate"));
+      console.error(JSON.stringify(error, null, 2));
+      throw new Error(`Authentication error: ${res.statusText}`, {
+        cause: error.error_description,
+      });
+    }
+  }
 
-  //   this.teams[teamIndex] = { ...this.teams[teamIndex], ...updatedTeam };
-  //   return this.teams[teamIndex];
-  // }
-
-  // deleteTeam(id: string): void {
-  //   const teamIndex = this.teams.findIndex(team => team.id === id);
-  //   if (teamIndex === -1) {
-  //     throw new Error(`Team with id ${id} not found`);
-  //   }
-
-  //   this.teams.splice(teamIndex, 1);
-  // }
+  async findPlan(id: string): Promise<void> {
+    const url = `${environment.BACKEND_API_URL}/teams/${id}`;
+    // console.debug(this.accessToken);
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        Accept: "application/json",
+      },
+    });
+    if (!res.ok) {
+      const error = await parseWWWAuthenticateHeader(res.headers.get("WWW-Authenticate"));
+      console.error(JSON.stringify(error, null, 2));
+      throw new Error(`Authentication error: ${res.statusText}`, {
+        cause: error.error_description,
+      });
+    }
+    return await res.json();
+  }
 }
 
 export default TeamService;

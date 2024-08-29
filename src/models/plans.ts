@@ -22,3 +22,5 @@ export const PlanEditFormSchema = z.object({
   }),
   description: z.string().optional(),
 });
+
+export type PlanSummary = Pick<Plan, "id" | "name">;

@@ -1,15 +1,21 @@
 "use client";
 
-import { Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure, User } from "@nextui-org/react";
-import React, { Key, useCallback, useState } from "react";
+import { Button, Chip, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from "@nextui-org/react";
+import React, { Key, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import TeamEditModal from "./TeamEditModal";
-import { SubscriptionColorMap, Team } from "@model/teams";
+import { Team } from "@model/teams";
+import { TeamModalProvider, useTeamModal } from "./TeamModalContext";
+import { toast } from "react-toastify";
+import { deleteTeam } from "@action/teams";
+import { SimpleMessage } from "@component/ToastContent";
+import AuditorCell from "@component/AuditorCell";
+import Summary from "@component/Summary";
 
 type TeamsTableProps = {
   headerTitle: string;
-  teams: Team[];
+  list: Team[];
 };
 
 type IndexableTeam = Team & {
@@ -19,12 +25,13 @@ type IndexableTeam = Team & {
 const columns = [
   { name: "Name", uid: "name" },
   { name: "Subscription plan", uid: "plan" },
+  { name: "Created by", uid: "created" },
+  { name: "Updated by", uid: "updated" },
   { name: "Actions", uid: "actions" },
 ];
 
-const TeamsTable = ({ teams, headerTitle }: Readonly<TeamsTableProps>) => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [toEdit, setToEdit] = useState<Team>();
+const TeamTableData = ({ list, headerTitle }: Readonly<TeamsTableProps>) => {
+  const { openModal } = useTeamModal();
   const renderCell = useCallback((team: IndexableTeam, columnKey: string | number) => {
     switch (columnKey) {
       case "name":
@@ -35,30 +42,36 @@ const TeamsTable = ({ teams, headerTitle }: Readonly<TeamsTableProps>) => {
           </div>
         );
       case "plan":
-        return team.plan ? (
-          <Chip className="capitalize" color={SubscriptionColorMap[team.plan]} size="sm" variant="flat" key={`${team.id}-${team.plan}`}>
-            {team.plan}
-          </Chip>
-        ) : (
-          <span />
-        );
+        console.debug("team.plan", team.plan);
+        return (<Summary title={team.plan?.name} subtitle={team.plan?.id} />);
+      case "created":
+        return <AuditorCell auditorName={team.createdBy} auditedAt={team.createdAt} />;
+      case "updated":
+        return <AuditorCell auditorName={team.updatedBy} auditedAt={team.updatedAt} />;
       case "actions":
         return (
           <div className="relative flex justify-end gap-2">
-            <Tooltip content="Details">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                <FontAwesomeIcon icon={faEye} />
-              </span>
-            </Tooltip>
-            <Tooltip content="Edit team">
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                <FontAwesomeIcon icon={faEdit} />
-              </span>
-            </Tooltip>
-            <Tooltip color="danger" content="Delete team">
-              <span className="text-lg text-danger cursor-pointer active:opacity-50">
-                <FontAwesomeIcon icon={faTrash} />
-              </span>
+            <Tooltip content="Delete plan">
+              <form>
+                <Button
+                  type="submit"
+                  isIconOnly
+                  color="danger"
+                  variant="flat"
+                  aria-label="Delete plan"
+                  formAction={() => {
+                    deleteTeam(team.id).then((st) => {
+                      if (st.status === "error") {
+                        toast.error(<SimpleMessage title={`Failed to delete plan`} description={st.message} />);
+                      } else {
+                        toast.success(`Team ${team.name} was deleted`);
+                      }
+                    });
+                  }}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </Button>
+              </form>
             </Tooltip>
           </div>
         );
@@ -66,39 +79,68 @@ const TeamsTable = ({ teams, headerTitle }: Readonly<TeamsTableProps>) => {
         return <span />;
     }
   }, []);
+  const columnWidth = useCallback((columnKey: string | number) => {
+    switch (columnKey) {
+      case "name":
+        return "30%";
+      case "plan":
+      case "created":
+      case "updated":
+        return "20%";
+      case "actions":
+        return "10%";
+      default:
+        return null;
+    }
+  }, []);
 
-  const editTeam = (key: Key) => {
-    setToEdit(teams.find((t) => t.id === key));
-    onOpen();
+  const selectTeam = (key: Key) => {
+    console.log("Selected team", key);
+    const team = list.find((u) => u.id === key);
+    if (team) {
+      openModal(team, () => toast.success(`Team ${team.name} was updated`));
+    }
+  };
+
+  const createTeam = () => {
+    openModal(null, () => toast.success(`Team created`));
   };
 
   return (
     <section>
-      <h1>{headerTitle}</h1>
-      <Table
-        aria-label="Team list"
-        // selectionMode="multiple"
-        // selectionBehavior="toggle"
-        onRowAction={editTeam}
-      >
-        <TableHeader columns={columns}>
-          {(column) => (
-            <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
-              {column.name}
-            </TableColumn>
-          )}
-        </TableHeader>
-        <TableBody emptyContent={"No teams to display."} items={teams}>
-          {(item) => (
-            <TableRow key={item.id} data-key={item.id}>
-              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      <TeamEditModal isOpen={isOpen} onChange={onOpenChange} team={toEdit} />
+      <h1 className="text-2xl pb-5">{headerTitle}</h1>
+      <div className="flex flex-col">
+        <div className="flex justify-end gap-2 mb-2">
+          <Button color="danger" onClick={createTeam}>
+            Create team
+          </Button>
+        </div>
+        <Table aria-label="Registered teams" onRowAction={selectTeam}>
+          <TableHeader columns={columns}>
+            {(column) => (
+              <TableColumn key={column.uid} width={columnWidth(column.uid)}>
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody emptyContent={"No teams to display."} items={list}>
+            {(item) => (
+              <TableRow key={item.id} data-key={item.id}>
+                {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <TeamEditModal />
     </section>
   );
 };
 
-export default TeamsTable;
+export default function TeamTable({ list, headerTitle }: Readonly<TeamsTableProps>) {
+  return (
+    <TeamModalProvider>
+      <TeamTableData list={list} headerTitle={headerTitle} />
+    </TeamModalProvider>
+  );
+}
