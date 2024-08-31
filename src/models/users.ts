@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TeamSummary } from "./teams";
 
 export const StatusColorMap: Record<string, "success" | "danger" | "warning" | "default" | "primary" | "secondary"> = {
   buyer: "success",
@@ -6,27 +7,21 @@ export const StatusColorMap: Record<string, "success" | "danger" | "warning" | "
   admin: "danger",
 };
 
-export type Client = {
+export type User = {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
-  team?: string;
+  team?: TeamSummary;
   avatar?: string;
   roles?: string[];
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string;
+  updatedBy: string;
 };
 
-export const UserUpdateValidatorSchema = z.object({
-  id: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  email: z.string().email(),
-  team: z.string().optional(),
-  avatar: z.string().optional(),
-  roles: z.array(z.enum(['staff', 'buyer'])).default(['buyer']),
-});
-
-export const UserEditFormSchema = z.object({
+export const UserEditValidatorSchema = z.object({
   id: z.string(),
   firstName: z.string().min(2, {
     message: "First name must be at least 2 characters.",
@@ -38,5 +33,13 @@ export const UserEditFormSchema = z.object({
     message: "Email must be valid.",
   }),
   team: z.string().optional(),
-  isPrivileged: z.coerce.boolean(),
+  avatar: z.string().optional(),
+  roles: z.array(z.enum(["staff", "buyer"])).default(["buyer"]),
 });
+
+export const UserEditFormSchema = UserEditValidatorSchema.omit({ roles: true }).extend({
+  isPrivileged: z.boolean().default(false),
+});
+
+export type UpdateUserDto = z.infer<typeof UserEditValidatorSchema>;
+export type CreateUserDto = Omit<UpdateUserDto, "id">;

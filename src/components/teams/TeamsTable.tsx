@@ -51,18 +51,18 @@ const TeamTableData = ({ list, headerTitle }: Readonly<TeamsTableProps>) => {
       case "actions":
         return (
           <div className="relative flex justify-end gap-2">
-            <Tooltip content="Delete plan">
+            <Tooltip content="Delete team">
               <form>
                 <Button
                   type="submit"
                   isIconOnly
                   color="danger"
                   variant="flat"
-                  aria-label="Delete plan"
+                  aria-label="Delete team"
                   formAction={() => {
                     deleteTeam(team.id).then((st) => {
                       if (st.status === "error") {
-                        toast.error(<SimpleMessage title={`Failed to delete plan`} description={st.message} />);
+                        toast.error(<SimpleMessage title={`Failed to delete team`} description={st.message} />);
                       } else {
                         toast.success(`Team ${team.name} was deleted`);
                       }

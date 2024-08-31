@@ -4,12 +4,6 @@ import { Team } from "@model/teams";
 import { TeamUpdateForm } from "./TeamUpdateForm";
 import { useTeamModal } from "./TeamModalContext";
 
-type TeamEditModalProps = {
-  isOpen: boolean;
-  onChange: () => void;
-  team?: Team;
-};
-
 function TeamEditModal() {
   const { record: team, plans, isOpen, closeModal } = useTeamModal();
 

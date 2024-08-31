@@ -4,7 +4,7 @@ function Summary({ title, subtitle }: Readonly<{ title?: string; subtitle?: stri
   return (
     <div className="flex flex-col">
       <p className="text-bold text-sm capitalize">{title}</p>
-      <p className="text-bold text-sm capitalize text-default-400">{subtitle}</p>
+      <p className="text-bold text-sm text-default-400">{subtitle}</p>
     </div>
   );
 }

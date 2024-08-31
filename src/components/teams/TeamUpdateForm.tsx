@@ -1,10 +1,9 @@
 import FormSubmitButton from "@component/FormSubmitButton";
-import { faPeopleGroup, faCirclePlay, faHandHoldingDollar } from "@fortawesome/free-solid-svg-icons";
+import { faPeopleGroup, faHandHoldingDollar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Team, TeamEditValidatorSchema } from "@model/teams";
-import { UserEditFormSchema } from "@model/users";
 import { Button, Input, ModalBody, ModalFooter, ModalHeader, Select, SelectItem } from "@nextui-org/react";
-import { Control, Controller, useForm, useFormState } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useTeamModal } from "./TeamModalContext";
 import { zodResolver } from "@hookform/resolvers/zod";

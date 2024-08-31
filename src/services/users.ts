@@ -1,9 +1,9 @@
 import environment from "@lib/environment";
 import { parseWWWAuthenticateHeader } from "@lib/utils";
-import { CreateTeamDto, Team, UpdateTeamDto } from "@model/teams";
+import { CreateUserDto, UpdateUserDto, User } from "@model/users";
 
-class TeamService {
-  private accessToken: string;
+class UserService {
+  private accessToken?: string;
 
   constructor(token?: string) {
     if (!token) {
@@ -12,9 +12,8 @@ class TeamService {
     this.accessToken = token;
   }
 
-  async getAll(): Promise<Team[]> {
-    const url = `${environment.BACKEND_API_URL}/teams`;
-    // console.debug(this.accessToken);
+  async getAll(): Promise<User[]> {
+    const url = `${environment.BACKEND_API_URL}/users`;
     const res = await fetch(url, {
       headers: {
         Authorization: `Bearer ${this.accessToken}`,
@@ -31,8 +30,8 @@ class TeamService {
     return await res.json();
   }
 
-  async createTeam(dto: CreateTeamDto): Promise<Team> {
-    const url = `${environment.BACKEND_API_URL}/teams`;
+  async createUser(dto: CreateUserDto): Promise<User> {
+    const url = `${environment.BACKEND_API_URL}/users`;
     // console.debug(this.accessToken);
     const res = await fetch(url, {
       method: "POST",
@@ -53,8 +52,26 @@ class TeamService {
     return await res.json();
   }
 
-  async updateTeam(id: string, dto: UpdateTeamDto): Promise<Team> {
-    const url = `${environment.BACKEND_API_URL}/teams/${id}`;
+  async findUser(id: string): Promise<User> {
+    const url = `${environment.BACKEND_API_URL}/users/${id}`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        Accept: "application/json",
+      },
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+    const error = await parseWWWAuthenticateHeader(res.headers.get("WWW-Authenticate"));
+    console.error(JSON.stringify(error, null, 2));
+    throw new Error(`Authentication error: ${res.statusText}`, {
+      cause: error.error_description,
+    });
+  }
+
+  async updateUser(id: string, dto: UpdateUserDto): Promise<User> {
+    const url = `${environment.BACKEND_API_URL}/users/${id}`;
     // console.debug(this.accessToken);
     const res = await fetch(url, {
       method: "PUT",
@@ -75,8 +92,8 @@ class TeamService {
     return await res.json();
   }
 
-  async deleteTeam(id: string): Promise<void> {
-    const url = `${environment.BACKEND_API_URL}/teams/${id}`;
+  async deleteUser(id: string): Promise<void> {
+    const url = `${environment.BACKEND_API_URL}/users/${id}`;
     // console.debug(this.accessToken);
     const res = await fetch(url, {
       method: "DELETE",
@@ -93,25 +110,6 @@ class TeamService {
       });
     }
   }
-
-  async findTeam(id: string): Promise<void> {
-    const url = `${environment.BACKEND_API_URL}/teams/${id}`;
-    // console.debug(this.accessToken);
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${this.accessToken}`,
-        Accept: "application/json",
-      },
-    });
-    if (!res.ok) {
-      const error = await parseWWWAuthenticateHeader(res.headers.get("WWW-Authenticate"));
-      console.error(JSON.stringify(error, null, 2));
-      throw new Error(`Authentication error: ${res.statusText}`, {
-        cause: error.error_description,
-      });
-    }
-    return await res.json();
-  }
 }
 
-export default TeamService;
+export default UserService;

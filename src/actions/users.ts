@@ -1,36 +1,27 @@
 "use server";
 
-import { unwrapObjectIntoFormData } from "@lib/utils";
-import { FormStatus } from "@model/forms";
-import { TeamEditValidatorSchema } from "@model/teams";
+import { UserEditValidatorSchema } from "@model/users";
 import { auth } from "@service/auth";
-import TeamService from "@service/teams";
+import UserService from "@service/users";
+import { FormStatus } from "@model/forms";
 import { revalidatePath } from "next/cache";
+import { unwrapObjectIntoFormData } from "@lib/utils";
 
-export async function getAllTeams() {
+export async function getAllUsers() {
   const session = await auth();
-  try {
-    const service = new TeamService(session?.accessToken);
-    return { data: await service.getAll() };
-  } catch (err) {
-    if (err instanceof Error) {
-      return {
-        error: err.message,
-        data: null,
-      };
-    }
-  }
-  return { data: null, error: "unexpected error" };
+  const service = new UserService(session?.accessToken);
+
+  return service.getAll();
 }
 
-export async function createTeam(formData: FormData): Promise<FormStatus> {
+export async function createUser(formData: FormData): Promise<FormStatus> {
   // we're gonna put a delay in here to simulate some kind of data processing like persisting data
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   console.debug("received body: ", formData);
   const form = unwrapObjectIntoFormData(formData);
   console.log("action data:", form);
-  const body = TeamEditValidatorSchema.omit({ id: true }).safeParse(form);
+  const body = UserEditValidatorSchema.omit({ id: true }).safeParse(form);
 
   if (!body.success) {
     console.error("error parsing body");
@@ -45,28 +36,28 @@ export async function createTeam(formData: FormData): Promise<FormStatus> {
   }
 
   const session = await auth();
-  const service = new TeamService(session?.accessToken);
+  const service = new UserService(session?.accessToken);
 
   const { data: dto } = body;
-  console.debug("Parsed team", dto);
-  const response = await service.createTeam(dto);
+  console.debug("Parsed user", dto);
+  const response = await service.createUser(dto);
   console.debug(response);
 
-  revalidatePath("/teams");
+  revalidatePath("/users");
   return {
     status: "success",
-    message: `Team ${dto.name} was created`,
+    message: `User ${dto.firstName} ${dto.lastName} was created`,
   };
 }
 
-export async function updateTeam(formData: FormData): Promise<FormStatus> {
+export async function updateUser(formData: FormData): Promise<FormStatus> {
   // we're gonna put a delay in here to simulate some kind of data processing like persisting data
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   console.debug("received body: ", formData);
   const form = unwrapObjectIntoFormData(formData);
   console.log("action data:", form);
-  const body = TeamEditValidatorSchema.safeParse(form);
+  const body = UserEditValidatorSchema.safeParse(form);
 
   if (!body.success) {
     console.error("error parsing body");
@@ -81,31 +72,32 @@ export async function updateTeam(formData: FormData): Promise<FormStatus> {
   }
 
   const session = await auth();
-  const service = new TeamService(session?.accessToken);
+  const service = new UserService(session?.accessToken);
 
   const { data: dto } = body;
-  console.debug("Parsed team", dto);
-  const response = await service.updateTeam(dto.id, dto);
+  console.debug("Parsed user", dto);
+  const response = await service.updateUser(dto.id, dto);
   console.debug(response);
 
-  revalidatePath("/teams");
+  revalidatePath("/users");
   return {
     status: "success",
-    message: `Team ${dto.name} was created`,
+    message: `User ${dto.firstName} ${dto.lastName} was updated`,
   };
 }
 
-export async function deleteTeam(id: string): Promise<FormStatus> {
+
+export async function deleteUser(id: string): Promise<FormStatus> {
   console.debug("delete team: ", id);
   try {
     const session = await auth();
-    const service = new TeamService(session?.accessToken);
+    const service = new UserService(session?.accessToken);
 
-    await service.deleteTeam(id);
+    await service.deleteUser(id);
     revalidatePath("/teams");
     return {
       status: "success",
-      message: "Team successfully deleted",
+      message: "User successfully deleted",
     };
   } catch (err) {
     if (err instanceof Error) {

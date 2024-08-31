@@ -2,26 +2,24 @@
 
 import { faPerson, faEnvelope, faPeopleGroup } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getTeams } from "@action/teams";
 import { Team } from "@model/teams";
-import { useEffect, useMemo, useState } from "react";
-import { Control, Controller, useForm, UseFormRegister, useFormState } from "react-hook-form";
-import { Client, UserEditFormSchema } from "@model/users";
+import { Control, Controller, useForm, useFormState } from "react-hook-form";
+import { User, UserEditFormSchema } from "@model/users";
 import { z } from "zod";
 import { Button, Input, ModalBody, ModalFooter, ModalHeader, Select, SelectItem, Switch } from "@nextui-org/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { updateClient } from "@action/clients";
+import { createUser, updateUser } from "@action/users";
 import { wrapObjectIntoFormData } from "@lib/utils";
-import { useUserEditModal } from "./ClientEditModalContext";
+import { useUserModal } from "./UserModalContext";
 import { toast } from "react-toastify";
 import { FormErrorMessage } from "@component/ToastContent";
 
-type ClientUpdateFormProps = {
-  client: Client | null;
+type UserUpdateFormProps = {
+  user: User | null;
   teams: Team[];
 };
 
-function SubmitButton({ control }: { control: Control<z.infer<typeof UserEditFormSchema>, any> }) {
+function SubmitButton({ control }: Readonly<{ control: Control<z.infer<typeof UserEditFormSchema>, any> }>) {
   const { isSubmitting } = useFormState({ control });
   return (
     <Button color="primary" aria-disabled={isSubmitting} type="submit" isLoading={isSubmitting}>
@@ -30,8 +28,8 @@ function SubmitButton({ control }: { control: Control<z.infer<typeof UserEditFor
   );
 }
 
-export function ClientUpdateForm({ client, teams }: Readonly<ClientUpdateFormProps>) {
-  const { onSuccess, closeModal } = useUserEditModal();
+export function UserUpdateForm({ user, teams }: Readonly<UserUpdateFormProps>) {
+  const { onSuccess, closeModal } = useUserModal();
 
   const {
     register,
@@ -41,8 +39,9 @@ export function ClientUpdateForm({ client, teams }: Readonly<ClientUpdateFormPro
   } = useForm<z.infer<typeof UserEditFormSchema>>({
     resolver: zodResolver(UserEditFormSchema),
     defaultValues: {
-      ...client,
-      isPrivileged: client?.roles?.includes("staff") ?? false,
+      ...user,
+      team: user?.team?.id,
+      isPrivileged: user?.roles?.includes("staff") ?? false,
     },
   });
 
@@ -50,7 +49,7 @@ export function ClientUpdateForm({ client, teams }: Readonly<ClientUpdateFormPro
     console.debug(data);
     const body = wrapObjectIntoFormData({ ...data, roles: data.isPrivileged ? ["staff", "buyer"] : ["buyer"] });
     console.debug("send body: ", body);
-    const res = await updateClient(null, body);
+    const res = data.id ? await updateUser(body) : await createUser(body);
     if (res.status === "success") {
       if (onSuccess) {
         console.debug("calling onSuccess");
@@ -65,7 +64,7 @@ export function ClientUpdateForm({ client, teams }: Readonly<ClientUpdateFormPro
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <ModalHeader className="flex flex-col gap-1">
-        Edit user {client?.firstName} {client?.lastName}
+        Edit user {user?.firstName} {user?.lastName}
       </ModalHeader>
       <ModalBody>
         <Input type="hidden" {...register("id")} />
