@@ -17,13 +17,13 @@
     "@hyper-fetch/react": "^5.7.5",
     "@nextui-org/react": "^2.4.6",
     "date-fns": "^3.6.0",
-    "framer-motion": "^11.3.12",
-    "next": "14.2.5",
+    "framer-motion": "^11.4.0",
+    "next": "^14.2.7",
     "next-auth": "^4.24.7",
     "prismjs": "^1.29.0",
-    "react": "^18",
-    "react-dom": "^18",
-    "react-hook-form": "^7.52.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
     "react-toastify": "^10.0.5",
     "server-only": "^0.0.1",
     "tailwind-merge": "^2.5.2",
@@ -31,15 +31,15 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^20.16.3",
     "@types/prismjs": "^1.26.4",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "eslint": "^8",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^8.57.0",
     "eslint-config-next": "14.2.5",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "postcss": "^8.4.44",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.5.4"
   },
-  "packageManager": "pnpm@9.6.0+sha512.38dc6fba8dba35b39340b9700112c2fe1e12f10b17134715a4aa98ccf7bb035e76fd981cf0bb384dfa98f8d6af5481c2bef2f4266a24bfa20c34eb7147ce0b5e"
+  "packageManager": "pnpm@9.9.0"
 }
