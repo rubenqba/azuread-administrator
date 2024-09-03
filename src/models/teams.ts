@@ -29,4 +29,6 @@ export const TeamEditValidatorSchema = z.object({
 export type UpdateTeamDto = z.infer<typeof TeamEditValidatorSchema>;
 export type CreateTeamDto = Omit<UpdateTeamDto, "id">;
 
-export type TeamSummary = Pick<Team, "id" | "name">;
+export type TeamSummary = Pick<Team, "id" | "name"> & {
+  subscription: string;
+};

@@ -52,8 +52,8 @@ const UserTableData = ({ users, headerTitle }: Readonly<UserTableProps>) => {
         );
       case "created":
         return <AuditorCell auditorName={user.createdBy} auditedAt={user.createdAt} />;
-      case "updated":
-        return <AuditorCell auditorName={user.updatedBy} auditedAt={user.updatedAt} />;
+      // case "updated":
+      //   return <AuditorCell auditorName={user.updatedBy} auditedAt={user.updatedAt} />;
       case "actions":
         return (
           <div className="relative flex justify-end gap-2">

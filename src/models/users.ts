@@ -16,9 +16,9 @@ export type User = {
   avatar?: string;
   roles?: string[];
   createdAt: string;
-  createdBy: string;
-  updatedAt: string;
-  updatedBy: string;
+  // createdBy: string;
+  // updatedAt: string;
+  // updatedBy: string;
 };
 
 export const UserEditValidatorSchema = z.object({

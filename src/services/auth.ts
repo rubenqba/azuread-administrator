@@ -7,7 +7,6 @@ import { PartnerInfo } from "../types/next-auth";
 import environment, { Config } from "@lib/environment";
 import { refreshAccessToken } from "@lib/auth";
 import { JWT } from "next-auth/jwt";
-import { RouteKind } from "next/dist/server/future/route-kind";
 
 function buildAzureADB2CConfig(config: Config) {
   const opts: OAuthUserConfig<AzureB2CProfile> & {
